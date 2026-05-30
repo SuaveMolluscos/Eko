@@ -5,7 +5,7 @@ class vec3:
 
     __slots__ = ('x', 'y', 'z')
     def __init__(self, x, y, z):
-        if not all(isinstance(v, (int, float)) for v in (x, y, z)):
+        if not all(isinstance(v, (int, float, np.float32)) for v in (x, y, z)):
             raise TypeError("x, y, z must be int or float")
         self.x = x
         self.y = y
