@@ -1,11 +1,12 @@
 import numpy as np
+from numbers import Real
 
 class vec3:
     EPSILON = 1e-6
 
     __slots__ = ('x', 'y', 'z')
     def __init__(self, x, y, z):
-        if not all(isinstance(v, (int, float, np.float32)) for v in (x, y, z)):
+        if not all(isinstance(v, Real) and not isinstance(v, bool) for v in (x, y, z)):
             raise TypeError("x, y, z must be int or float")
         self.x = x
         self.y = y
@@ -14,6 +15,11 @@ class vec3:
     def cross(self, other: 'vec3'):
         if isinstance(other, vec3):
             return vec3(self.y*other.z - self.z*other.y, self.z*other.x - self.x*other.z, self.x*other.y - self.y*other.x)
+        return NotImplemented
+
+    def dot(self, other: 'vec3'):
+        if isinstance(other, vec3):
+            return self.x * other.x + self.y * other.y + self.z * other.z
         return NotImplemented
 
     def magnitude(self):
@@ -43,19 +49,22 @@ class vec3:
     
     def reflect(self, other: 'vec3'):
         if isinstance(other, vec3):
-            return self - 2 * (self@other) * other
+            normal_length_squared = other @ other
+            if normal_length_squared < self.EPSILON ** 2:
+                return self
+            return self - 2 * (self @ other) / normal_length_squared * other
         return NotImplemented
     
     def clamp(self, min_val: 'vec3', max_val: 'vec3'):
         if isinstance(min_val, vec3):
             min_x, min_y, min_z = min_val.x, min_val.y, min_val.z
-        elif isinstance(min_val, (int, float)):
+        elif isinstance(min_val, Real) and not isinstance(min_val, bool):
             min_x = min_y = min_z = min_val
         else:
             return NotImplemented
         if isinstance(max_val, vec3):
             max_x, max_y, max_z = max_val.x, max_val.y, max_val.z
-        elif isinstance(max_val, (int, float)):
+        elif isinstance(max_val, Real) and not isinstance(max_val, bool):
             max_x = max_y = max_z = max_val
         else:
             return NotImplemented
@@ -124,7 +133,7 @@ class vec3:
 
         #scalar multiplication
     def __mul__(self, other):
-        if isinstance(other, (int, float)):
+        if isinstance(other, Real) and not isinstance(other, bool):
             return vec3(self.x * other, self.y * other, self.z * other)
         if isinstance(other, vec3):
             return vec3(self.x*other.x, self.y*other.y, self.z*other.z)
@@ -140,7 +149,7 @@ class vec3:
     
         #scalar division
     def __truediv__(self, other):
-        if isinstance(other, (int, float)):
+        if isinstance(other, Real) and not isinstance(other, bool):
             try:
                 return vec3(self.x / other, self.y / other, self.z / other)
             except ZeroDivisionError:
@@ -162,8 +171,7 @@ class vec3:
                 abs(self.z - value.z) < self.EPSILON)
     
         #hasheable
-    def __hash__(self):
-        return hash((self.x, self.y, self.z))
+    __hash__ = None
     
         #Get Item
     def __getitem__(self, key):
@@ -220,6 +228,13 @@ class vec3:
     
     @staticmethod
     def from_numpy(arr: np.ndarray) -> 'vec3':
-        if arr.shape[0] < 3:
-            raise ValueError(f"Array must have at least 3 elements, got {arr.shape[0]}")
+        if not isinstance(arr, np.ndarray):
+            raise TypeError("arr must be a numpy.ndarray")
+        if arr.ndim != 1 or arr.shape[0] < 3:
+            raise ValueError("Array must be one-dimensional with at least 3 elements")
+        if not np.issubdtype(arr.dtype, np.number):
+            raise TypeError("Array elements must be numeric")
         return vec3(float(arr[0]), float(arr[1]), float(arr[2]))
+
+
+Vec3 = vec3

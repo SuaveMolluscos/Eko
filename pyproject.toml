@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eko-engine"
+version = "0.1.0"
+description = "An experimental 3D framework in Python, built from the math up."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+]
+authors = [
+    { name = "SuaveMolluscos" },
+]
+keywords = [
+    "3d",
+    "game-engine",
+    "software-rendering",
+    "ecs",
+    "pygame",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Games/Entertainment",
+    "Topic :: Multimedia :: Graphics :: 3D Rendering",
+]
+
+[project.optional-dependencies]
+pygame = ["pygame-ce>=2.5.3"]
+test = ["pygame-ce>=2.5.3"]
+
+[project.urls]
+Homepage = "https://github.com/SuaveMolluscos/Eko"
+Repository = "https://github.com/SuaveMolluscos/Eko"
+Issues = "https://github.com/SuaveMolluscos/Eko/issues"
+
+[tool.setuptools.packages.find]
+include = ["eko*"]

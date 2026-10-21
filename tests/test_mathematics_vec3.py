@@ -1,11 +1,8 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import unittest
 import numpy as np
-from mathematics.vec3 import vec3
+from eko.mathematics import Vec3
+
+vec3 = Vec3
 
 class TestVec3(unittest.TestCase):
 
@@ -71,6 +68,7 @@ class TestVec3(unittest.TestCase):
     def test_matmul_dot(self):
         dot = self.v @ self.w
         self.assertEqual(dot, 1*4 + 2*5 + 3*6)  # 32
+        self.assertEqual(self.v.dot(self.w), dot)
 
     def test_truediv(self):
         r = self.v / 2
@@ -90,9 +88,9 @@ class TestVec3(unittest.TestCase):
         self.assertFalse(self.v == self.w)
         self.assertFalse(self.v == (1, 2, 3))
 
-    def test_hash(self):
-        d = {self.v: "value"}
-        self.assertEqual(d[vec3(1, 2, 3)], "value")
+    def test_unhashable(self):
+        with self.assertRaises(TypeError):
+            hash(self.v)
 
     # ------------------------------------------------------------
     # Acceso por índice e iteración
@@ -162,6 +160,8 @@ class TestVec3(unittest.TestCase):
         v = vec3(1, 0, 0)
         n = vec3(0, 1, 0)
         self.assertEqual(v.reflect(n), v)
+        self.assertEqual(vec3(1, -1, 0).reflect(vec3(0, 2, 0)), vec3(1, 1, 0))
+        self.assertEqual(vec3(1, 2, 3).reflect(vec3.zero()), vec3(1, 2, 3))
 
     def test_clamp(self):
         v = vec3(5, -10, 20)
@@ -243,6 +243,10 @@ class TestVec3(unittest.TestCase):
         # Con forma incorrecta
         with self.assertRaises(ValueError):
             vec3.from_numpy(np.array([1, 2]))
+        with self.assertRaises(ValueError):
+            vec3.from_numpy(np.array([[1, 2, 3]]))
+        with self.assertRaises(TypeError):
+            vec3.from_numpy(np.array(["1", "2", "3"]))
         # Con tipo diferente (float64)
         arr_f64 = np.array([1.5, 2.5, 3.5], dtype=np.float64)
         v = vec3.from_numpy(arr_f64)
